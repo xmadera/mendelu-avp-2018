@@ -1,21 +1,28 @@
-# APV projekt
+# APV project
 
-[Stránky garanta předmětu s aktuálními informacemi](https://akela.mendelu.cz/~xpopelka/cs/apv/)
+## Links
+- [Website of course](https://akela.mendelu.cz/~xpopelka/cs/apv/)
+- [Walkthrough](http://odinuv.cz/en/)
+- [Slim docs](https://www.slimframework.com/docs/)
 
-Vytvořte webovou aplikaci pro evidenci přítelkyň, přítelů, adres, vztahů a
-schůzek. Hlavním prvkem aplikace je evidence osob a schůzek mezi nimi, tedy
-jakýsi adresář. U každé osoby se zaznamenává jméno, příjmení, věk, bydliště
-a kontaktní údaje. Každá osoba může mít libovolný počet kontaktních údajů
-(mobil, Jabber, Skype, …). Každá osoba může mít vztah s libovolnými jinými
-osobami v databázi. U každého vztahu se zaznamenává délka trvání a typ (známý,
-přítel, přítelkyně, manžel, …). Dále se také zaznamenávají schůzky mezi
-jednotlivými osobami. Schůzky se může účastnit libovolný počet osob. U schůzky
-se dále zaznamenává datum a místo. Osoba může mít více kontaktů stejného typu
-(např. dva emaily). Typy kontaktů jsou definované dynamicky v databázi a
-uživatel je může měnit. Aplikace musí umožňovat přidání, změnu a odstranění
-vložených údajů. Aplikace by měla umožňovat snadné přidávání a změnu osob
-a schůzek. Využijte navržené schéma databáze a vytvořte databázi a
-implementujte aplikaci. 
+## Assignment
+Create a web application for recording persons and contacts. The main goal of
+the application is to record persons (friend, acquaintances), their addresses,
+relationships and meetings. Each person can have a name, nickname, age, location
+and contacts. Each person can have any number of contacts (mobile, Skype,
+Jabber, ….). A person can have more contacts of the same type (e.g. two emails).
+Each person can have any number of relationships with other persons in the
+database. Each relationship should be of a type (friend, fiend, acquaintance,
+spouse, …) and description. The contact and relationship types are recorded in
+the database and can be modified by the end-user. The application also records
+meetings between persons. Each meeting can be joined by any number of persons.
+Each meeting should have a place and date. The application must allow user
+friendly entering and modifying the data. Take advantage of the proposed schema,
+create a database and implement the entire application.
 
-## Instalace a rozběhnutí projektu
-- Nainstalujte závislosti pomocí příkazu `composer install`
+## Installation
+- Copy sources to a machine with PHP and Composer
+- Copy `/.env.example` file to `/.env`. Insert database credentials into it.
+- Create `/cache` folder and make it writeable (`chmod 0777 cache`).
+- Make `/logs` folder writable too (`chmod 0777 logs`).
+- Install project dependencies using `composer install` command.
