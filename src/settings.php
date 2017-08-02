@@ -9,6 +9,13 @@ return [
             'template_path' => __DIR__ . '/../templates/',
         ],
 
+        'db' => [
+            'dbhost' => getenv('DB_HOST'),
+            'dbname' => getenv('DB_NAME'),
+            'dbuser' => getenv('DB_USER'),
+            'dbpass' => getenv('DB_PASS')
+        ],
+
         // Monolog settings
         'logger' => [
             'name' => 'slim-app',

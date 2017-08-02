@@ -3,3 +3,5 @@
 !/logs/README.md
 /.idea
 /nbproject
+/cache
+/.env

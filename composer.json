@@ -8,24 +8,30 @@
         {
             "name": "Jiri Lysek",
             "email": "jiri.lysek@mendelu.cz",
-            "homepage": "https://akela.mendelu.cz/~lysek"
+            "homepage": "https://akela.mendelu.cz/~lysek/"
         },
         {
             "name": "Ondrej Popelka",
             "email": "odinuv@gmail.com",
-            "homepage": "https://akela.mendelu.cz/~xpopelka"
+            "homepage": "https://akela.mendelu.cz/~xpopelka/"
         }
 
     ],
     "require": {
         "php": ">=5.5.0",
         "slim/slim": "^3.1",
-        "slim/php-view": "^2.0",
+        "latte/latte": "^2.4",
+        "vlucas/phpdotenv": "^2.4",
         "monolog/monolog": "^1.17"
     },
     "require-dev": {
     },
     "autoload-dev": {
+    },
+    "autoload" : {
+        "psr-0": {
+            "": "classes/"
+        }
     },
 	"scripts": {
         "start": "php -S 0.0.0.0:8080 -t public public/index.php"
