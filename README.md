@@ -22,7 +22,7 @@ create a database and implement the entire application.
 
 ## Installation
 - Copy sources to a machine with PHP and Composer
-- Copy `/.env.example` file to `/.env`. Insert database credentials into it.
-- Create `/cache` folder and make it writeable (`chmod 0777 cache`).
-- Make `/logs` folder writable too (`chmod 0777 logs`).
+- Copy `.env.example` file to `/.env`. Insert database credentials into it.
+- Make `cache` folder writeable (`chmod 0777 cache`).
+- Make `logs` folder writable too (`chmod 0777 logs`).
 - Install project dependencies using `composer install` command.

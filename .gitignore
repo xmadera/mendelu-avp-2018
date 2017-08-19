@@ -3,5 +3,5 @@
 !/logs/README.md
 /.idea
 /nbproject
-/cache
-/.env
+/cache/*
+!/.env/.gitignore
