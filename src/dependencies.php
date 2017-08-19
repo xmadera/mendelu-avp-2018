@@ -3,6 +3,7 @@
 use Latte\Engine;
 use Latte\MacroNode;
 use Latte\PhpWriter;
+use Ujpef\LatteView;
 
 // DIC configuration
 
