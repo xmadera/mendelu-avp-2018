@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "109d867321a07b9fd8b3cb9907de3ea0",
+    "content-hash": "68a086543898e45e23c3042bd59ef38e",
     "packages": [
         {
             "name": "container-interop/container-interop",
@@ -495,6 +495,44 @@
                 "router"
             ],
             "time": "2017-03-19T17:55:20+00:00"
+        },
+        {
+            "name": "ujpef/latte-view",
+            "version": "0.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ujpef/latte-view.git",
+                "reference": "b13e621398f1e40e22f51b3c65722fc7e28ce39e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ujpef/latte-view/zipball/b13e621398f1e40e22f51b3c65722fc7e28ce39e",
+                "reference": "b13e621398f1e40e22f51b3c65722fc7e28ce39e",
+                "shasum": ""
+            },
+            "require": {
+                "latte/latte": "^2.4",
+                "psr/http-message": "^1.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Ujpef\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Jiri Lysek",
+                    "email": "jiri.lysek@mendelu.cz",
+                    "homepage": "https://akela.mendelu.cz/~lysek/"
+                }
+            ],
+            "description": "Latte slim wrapper",
+            "time": "2017-08-19T22:51:30+00:00"
         },
         {
             "name": "vlucas/phpdotenv",
