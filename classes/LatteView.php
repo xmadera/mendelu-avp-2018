@@ -7,25 +7,28 @@ use \Psr\Http\Message\ResponseInterface as Response;
  *
  * This class is a simple wrapper for Latte template engine which can be used with Slim PHP framework
  */
-class LatteView {
-	
-	private $latte;
-	private $pathToTemplates;
-	private $additionalParams = [];
+class LatteView
+{
 
-	function __construct(Latte\Engine $latte, $pathToTemplates) {
-		$this->latte = $latte;
-		$this->pathToTemplates = $pathToTemplates;
-	}
+    private $latte;
+    private $pathToTemplates;
+    private $additionalParams = [];
+
+    public function __construct(Latte\Engine $latte, $pathToTemplates)
+    {
+        $this->latte = $latte;
+        $this->pathToTemplates = $pathToTemplates;
+    }
 
     /**
      * add template variables from assoc. array
      *
      * @param array $params
      */
-	function addParams(array $params) {
-		$this->additionalParams = array_merge($this->additionalParams, $params);
-	}
+    public function addParams(array $params)
+    {
+        $this->additionalParams = array_merge($this->additionalParams, $params);
+    }
 
     /**
      * add template variable
@@ -33,7 +36,8 @@ class LatteView {
      * @param $name
      * @param $param
      */
-    function addParam($name, $param) {
+    public function addParam($name, $param)
+    {
         $this->additionalParams[$name] = $param;
     }
 
@@ -45,13 +49,14 @@ class LatteView {
      * @param array $params
      * @return Response
      */
-	function render(Response $response, $name, array $params = []) {
-		$name = $this->pathToTemplates . '/' . $name;
-		$params = array_merge($this->additionalParams, $params);
-		$output = $this->latte->renderToString($name, $params);
-		$response->getBody()->write($output);
+    public function render(Response $response, $name, array $params = [])
+    {
+        $name = $this->pathToTemplates . '/' . $name;
+        $params = array_merge($this->additionalParams, $params);
+        $output = $this->latte->renderToString($name, $params);
+        $response->getBody()->write($output);
         return $response;
-	}
+    }
 
     /**
      * add Latte macro
@@ -59,7 +64,8 @@ class LatteView {
      * @param $name
      * @param callable $callback
      */
-    function addMacro($name, callable $callback) {
+    public function addMacro($name, callable $callback)
+    {
         $set = new Latte\Macros\MacroSet($this->latte->getCompiler());
         $set->addMacro($name, $callback);
     }
@@ -70,8 +76,8 @@ class LatteView {
      * @param $title
      * @param callable $callback
      */
-    function addFilter($title, callable $callback) {
+    public function addFilter($title, callable $callback)
+    {
         $this->latte->addFilter($title, $callback);
     }
-	
 }

@@ -10,7 +10,7 @@ $container = $app->getContainer();
 
 // monolog
 $container['logger'] = function ($c) {
-    $settings = $c->get('settings')['logger'];
+    $settings = $c['settings']['logger'];
     $logger = new Monolog\Logger($settings['name']);
     $logger->pushProcessor(new Monolog\Processor\UidProcessor());
     $logger->pushHandler(new Monolog\Handler\StreamHandler($settings['path'], $settings['level']));
@@ -27,14 +27,14 @@ $container['db'] = function ($c) {
     return $pdo;
 };
 
-$container['view'] = function($container) use ($settings) {
+$container['view'] = function ($container) use ($settings) {
     $engine = new Engine();
     $engine->setTempDirectory(__DIR__ . '/../cache');
 
     $latteView = new LatteView($engine, $settings['settings']['renderer']['template_path']);
     $latteView->addParam('router', $container->router);
-    $latteView->addMacro('link', function(MacroNode $node, PhpWriter $writer) use ($container) {
-        if(strpos($node->args, ' ') !== false) {
+    $latteView->addMacro('link', function (MacroNode $node, PhpWriter $writer) use ($container) {
+        if (strpos($node->args, ' ') !== false) {
             return $writer->write("echo \$router->pathFor(%node.word, %node.args);");
         } else {
             return $writer->write("echo \$router->pathFor(%node.word);");
