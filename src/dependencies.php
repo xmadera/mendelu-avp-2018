@@ -3,6 +3,7 @@
 use Latte\Engine;
 use Latte\MacroNode;
 use Latte\PhpWriter;
+use Ujpef\LatteView;
 
 // DIC configuration
 
@@ -20,7 +21,7 @@ $container['logger'] = function ($c) {
 //database
 $container['db'] = function ($c) {
     $db = $c['settings']['db'];
-    $pdo = new PDO("mysql:host=" . $db['dbhost'] . ";dbname=" . $db['dbname'], $db['dbuser'], $db['dbpass']);
+    $pdo = new PDO($db['dbtype'] . ":host=" . $db['dbhost'] . ";dbname=" . $db['dbname'], $db['dbuser'], $db['dbpass']);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
     $pdo->query("SET NAMES 'utf8'");

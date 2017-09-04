@@ -1,4 +1,8 @@
 <?php
+
+$env = new Dotenv\Dotenv(__DIR__ . DIRECTORY_SEPARATOR . '..');
+$env->load();
+
 return [
     'settings' => [
         'displayErrorDetails' => true, // set to false in production
@@ -10,6 +14,7 @@ return [
         ],
 
         'db' => [
+            'dbtype' => getenv('DB_TYPE'),
             'dbhost' => getenv('DB_HOST'),
             'dbname' => getenv('DB_NAME'),
             'dbuser' => getenv('DB_USER'),
