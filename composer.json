@@ -1,28 +1,23 @@
 {
-    "name": "apv-projekt",
-    "description": "Projekt do predmetu APV",
-    "keywords": ["apv"],
-    "homepage": "https://akela.mendelu.cz/~xpopelka/cs/apv/",
-    "license": "MIT",
-    "authors": [
-        {
-            "name": "Jiri Lysek",
-            "email": "jiri.lysek@mendelu.cz",
-            "homepage": "https://akela.mendelu.cz/~lysek/"
-        },
-        {
-            "name": "Ondrej Popelka",
-            "email": "odinuv@gmail.com",
-            "homepage": "https://akela.mendelu.cz/~xpopelka/"
-        }
-
-    ],
-    "require": {
-        "php": ">=5.5.0",
-        "slim/slim": "^3.1",
-        "latte/latte": "^2.4",
-        "vlucas/phpdotenv": "^2.4",
-        "monolog/monolog": "^1.17",
-        "ujpef/latte-view": "^0.0.2"
+  "name": "apv-project",
+  "description": "APV course project skeleton",
+  "keywords": [
+    "apv"
+  ],
+  "homepage": "https://akela.mendelu.cz/~xpopelka/cs/apv/",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Bugs Bunny",
+      "email": "bunny@example.com",
+      "homepage": "https://www.wbkidsgo.com/looneytunes/Bugs-Bunny"
     }
+  ],
+  "require": {
+    "php": ">=5.5.0",
+    "slim/slim": "^3.1",
+    "vlucas/phpdotenv": "^2.4",
+    "monolog/monolog": "^1.17",
+    "ujpef/latte-view": "^0.0.2"
+  }
 }
