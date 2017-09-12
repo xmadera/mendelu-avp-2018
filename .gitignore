@@ -4,4 +4,5 @@
 /.idea
 /nbproject
 /cache/*
-!/.env/.gitignore
+!/cache/.gitignore
+/.env
