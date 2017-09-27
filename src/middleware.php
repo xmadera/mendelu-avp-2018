@@ -1,4 +1,14 @@
 <?php
 // Application middleware
 
-// e.g: $app->add(new \Slim\Csrf\Guard);
+use \Psr\Http\Message\ServerRequestInterface as Request;
+use \Psr\Http\Message\ResponseInterface as Response;
+
+$app->add(function(Request $request, Response $response, $next) {
+    $basePath = $request->getUri()->getBasePath();
+    if(!empty($basePath)) {
+        $basePath .= '/';
+    }
+    $this->view->addParam('basePath', $basePath);
+    return $next($request, $response);
+});
