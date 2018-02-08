@@ -1,9 +1,8 @@
 # APV project
 
 ## Links
-- [Website of course](https://akela.mendelu.cz/~xpopelka/cs/apv/)
-- [Walkthrough](http://odinuv.cz/en/)
-- [Slim docs](https://www.slimframework.com/docs/)
+- [Website of course and walkthrough](http://akela.mendelu.cz/~lysek/tmwa/)
+- [Slim framework docs](https://www.slimframework.com/docs/)
 
 ## Assignment
 Create a web application for recording persons and contacts. The main goal of
@@ -22,7 +21,7 @@ create a database and implement the entire application.
 
 ## Installation
 - Copy sources to a machine with PHP and Composer
-- Copy `.env.example` file to `/.env`. Insert database credentials into it.
-- Make `cache` folder writeable (`chmod 0777 cache`).
-- Make `logs` folder writable too (`chmod 0777 logs`).
+- Copy `/.env.example` file to `/.env`. Insert database credentials into it.
+- Make `/cache` folder writeable (`chmod 0777 cache`).
+- Make `/logs` folder writable too (`chmod 0777 logs`).
 - Install project dependencies using `composer install` command.
