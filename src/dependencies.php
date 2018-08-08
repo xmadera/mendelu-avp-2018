@@ -3,6 +3,7 @@
 use Latte\Engine;
 use Latte\MacroNode;
 use Latte\PhpWriter;
+use Latte\Loaders\FileLoader;
 use Ujpef\LatteView;
 
 // DIC configuration
@@ -30,9 +31,10 @@ $container['db'] = function ($c) {
 
 $container['view'] = function ($container) use ($settings) {
     $engine = new Engine();
+    $engine->setLoader(new FileLoader($settings['settings']['renderer']['template_path']));
     $engine->setTempDirectory(__DIR__ . '/../cache');
 
-    $latteView = new LatteView($engine, $settings['settings']['renderer']['template_path']);
+    $latteView = new LatteView($engine);
     $latteView->addParam('router', $container->router);
     $latteView->addMacro('link', function (MacroNode $node, PhpWriter $writer) use ($container) {
         if (strpos($node->args, ' ') !== false) {
