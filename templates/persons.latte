@@ -1,0 +1,28 @@
+{extends 'layout.latte'}
+
+{block title}
+    git status
+
+    git add
+
+    git commit -m "msg"
+
+    git push
+
+    git pull{/block}
+
+{block body}
+    <div class="container">
+        <h1>{include title}</h1>
+        <table class="table table-stripped">
+{foreach $people as $p}
+    <tr>
+    <td>{$p['first_name']}</td>
+        <td>{$p['last_name']}</td>
+        <td>{$p['nickname']}</td>
+    </tr>
+{/foreach}
+        </table>
+    </div>
+
+{/block}
