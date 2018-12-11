@@ -1,0 +1,43 @@
+{extends 'layout.latte'}
+
+{block title}Upravit osobu{/block}
+
+{block body}
+
+    <div class="container">
+        <h1>{include title}</h1>
+        <form action="{link editPerson}?id={$id}" method="post">
+            <label>Jmeno</label>
+            <input type="text" name="fn" value="{$form['fn']}"
+                   class="form-control">
+            <br>
+            <label>Prijmeni</label>
+            <input type="text" name="ln" value="{$form['ln']}"
+                   class="form-control">
+            <br>
+            <label>Prezdivka</label>
+            <input type="text" name="nn" value="{$form['nn']}"
+                   class="form-control">
+            <br>
+            <label>Vyska</label>
+            <input type="number" name="h" value="{$form['h']}" class="form-control">
+            <br>
+            <label>Pohlavi</label>
+            <select name="g" class="form-control">
+                <option value="">Nezname</option>
+                <option value="male" {if $form['g'] == 'male'}selected{/if}>Muz</option>
+                <option value="female" {if $form['g'] == 'female'}selected{/if}>Zena</option>
+            </select>
+            <br>
+            <label>Datum narozeni</label>
+            <input type="date" name="bd" value="{$form['bd']}" class="form-control">
+            <br>
+            <button type="submit" class="btn btn-primary">
+                <span class="fa fa-save"></span>
+                Upravit
+            </button>
+        </form>
+        <hr>
+        <a href="{link persons}" class="btn btn-primary">Zpet</a>
+    </div>
+{/block}

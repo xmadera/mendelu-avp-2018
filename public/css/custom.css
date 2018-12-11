@@ -1,3 +1,22 @@
 /*
   place custom CSS definitions into this file to override Bootstrap
 */
+
+/*
+table td {
+    color: #FF0000;
+}
+*/
+
+/* <cokoliv class="upper"></cokoliv> */
+
+h1 {
+    margin-top: 60px;
+}
+
+.navbar {
+    border-bottom-style: outset;
+    border-color: cyan;
+    border-width: thin;
+    opacity: 0.8;
+}
