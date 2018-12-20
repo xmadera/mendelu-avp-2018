@@ -11,34 +11,41 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     {ifset meta}{include meta}{/ifset}
 </head>
-<body>
 <!-- menu -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-3">
-    <a class="navbar-brand" href="{link persons}">Navbar</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-3">
+    <div class="container">
+    <a class="navbar-brand" href="{link persons}">Výpis osob</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
-    <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav">
-            <li class="nav-item">
-                <a class="nav-link" href="{link persons}">
-                    Vypis osob
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{link newPerson}">
-                    Nova osoba
-                </a>
-            </li>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
             <li class="nav-item">
                 <a class="nav-link" href="{link newWithAddress}">
-                    Nova osoba s adresou
+                    Nová osoba
                 </a>
             </li>
         </ul>
+        <ul class="navbar-nav ml-auto mt-2 mt-lg-0">
+            </li
+            {if empty($_SESSION['user'])}>
+            <li class="nav-item">
+                <a class="nav-link" href="{link login}">
+                    Přihlásit
+                </a>
+            </li>
+            {/if}
+            {if !empty($_SESSION['user'])}
+                <li class="nav-item">
+                    <a class="nav-link" href="{link logout}">
+                        Odhlásit {$_SESSION['user']['login']}
+                    </a>
+                </li>
+            {/if}
+        </ul>
+    </div>
     </div>
 </nav>
-
 <!-- chyba -->
 {if !empty($error)}
     <div class="container">

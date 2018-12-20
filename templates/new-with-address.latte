@@ -1,6 +1,6 @@
 {extends 'layout.latte'}
 
-{block title}Pridat osobu s adresou{/block}
+{block title}Nová osoba{/block}
 
 {block body}
     <div class="container">
@@ -8,35 +8,35 @@
         <form action="{link newWithAddress}" method="post">
             <div class="row">
                 <div class="col-6">
-                    <label>Jmeno</label>
+                    <label>Jméno*</label>
                     <input type="text" name="fn" value="{$form['fn']}"
-                           class="form-control">
+                           class="form-control" required>
                     <br>
-                    <label>Prijmeni</label>
+                    <label>Příjmení*</label>
                     <input type="text" name="ln" value="{$form['ln']}"
-                           class="form-control">
+                           class="form-control" required>
                     <br>
-                    <label>Prezdivka</label>
+                    <label>Přezdívka*</label>
                     <input type="text" name="nn" value="{$form['nn']}"
-                           class="form-control">
+                           class="form-control" required>
                     <br>
-                    <label>Vyska</label>
+                    <label>Výška</label>
                     <input type="number" name="h" value="{$form['h']}" class="form-control">
                     <br>
-                    <label>Pohlavi</label>
+                    <label>Pohlaví</label>
                     <select name="g" class="form-control">
                         <option value="">Nezname</option>
                         <option value="male" {if $form['g'] == 'male'}selected{/if}>Muz</option>
                         <option value="female" {if $form['g'] == 'female'}selected{/if}>Zena</option>
                     </select>
                     <br>
-                    <label>Datum narozeni</label>
+                    <label>Datum narození</label>
                     <input type="date" name="bd" value="{$form['bd']}" class="form-control">
                     <br>
                 </div>
 
                 <div class="col-6">
-                    <label>Mesto</label>
+                    <label>Město</label>
                     <input type="text" class="form-control"
                            name="ci" value="{$form['ci']}">
                     <br>
@@ -44,20 +44,20 @@
                     <input type="text" class="form-control"
                            name="st" value="{$form['st']}">
                     <br>
-                    <label>Cislo domu</label>
+                    <label>Číslo domu</label>
                     <input type="number" class="form-control"
                            name="sn" value="{$form['sn']}">
                     <br>
-                    <label>PSC</label>
+                    <label>PSČ</label>
                     <input type="text" class="form-control"
                            name="zip" value="{$form['zip']}">
                     <br>
 
                     <hr>
 
-                    <label>Existujici adresa</label>
+                    <label>Existující adresa</label>
                     <select name="idl" class="form-control">
-                        <option value="">Nova adresa</option>
+                        <option value="">Nová adresa</option>
                         {foreach $locations as $l}
                             {if $l['id_location'] == $form['idl']}
                                 <option value="{$l['id_location']}" selected>
@@ -79,7 +79,7 @@
 
             <button type="submit" class="btn btn-primary">
                 <span class="fa fa-save"></span>
-                Ulozit
+                Uložit
             </button>
         </form>
     </div>

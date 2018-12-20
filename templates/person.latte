@@ -1,0 +1,49 @@
+{extends 'layout.latte'}
+
+{block title}Výpis kompletních informací o osobě{/block}
+
+{block body}
+<div class="container">
+
+    <h1>{include title}</h1>
+    <form action="{link infAboutPerson}?id={$id}" method="post">
+
+        <table class="table table-striped">
+            <br>
+            <tr>
+                <th>Jméno</th>
+                <th>Příjmení</th>
+                <th>Přezdívka</th>
+                <th>Datum narození</th>
+                <th>Výška</th>
+            </tr>
+
+                <tr>
+                    <td>{$person['fn']}</td>
+                    <td>{$person['ln']}</td>
+                    <td>{$person['nn']}</td>
+                    <td>{$person['bd']}  </td>
+                    <td>{$person['h']}  </td>
+                </tr>
+
+                <tr>
+                    <th>Země</th>
+                    <th>Město</th>
+                    <th>Ulice</th>
+                    <th>Číslo ulice</th>
+                    <th>Meeting</th>
+                    <th>Start</th>
+                </tr>
+            {foreach $people as $p}
+                <tr>
+                    <td> {$p['country']} </td>
+                    <td> {$p['city']}</td>
+                    <td> {$p['street_name']}</td>
+                    <td> {$p['street_number']}</td>
+                    <td> {$p['description']}</td>
+                    <td> {$p['start']}</td>
+                </tr>
+            {/foreach}
+        </table>
+</div>
+{/block}

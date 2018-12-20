@@ -1,0 +1,27 @@
+{extends 'layout.latte'}
+
+{block title}Prihlaseni{/block}
+
+{block body}
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-4 offset-lg-4">
+
+                <h1>{include title}</h1>
+                <form action="{link login}" method="post">
+                    <label>Přezdívka</label>
+                    <input type="text" name="login" class="form-control" required>
+                    <br>
+                    <label>Heslo</label>
+                    <input type="password" name="pass" class="form-control" required>
+                    <br>
+                    <button type="submit" class="btn btn-primary">
+                        <span class="fa fa-save"></span>
+                        Přihlásit
+                    </button>
+                </form>
+
+            </div>
+        </div>
+    </div>
+{/block}

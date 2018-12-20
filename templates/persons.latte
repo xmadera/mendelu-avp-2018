@@ -1,58 +1,9 @@
 {extends 'layout.latte'}
 
-{block title}Vypis osob{/block}
+{block title}Výpis osob{/block}
 
 {block body}
-
-    <!--
-
-        <p>
-            SELECT first_name, last_name, pocet FROM person
-            LEFT JOIN (
-
-            SELECT id_person,
-            COUNT(*) AS pocet FROM contact
-            GROUP BY id_person ) AS pocty_kontaktu
-            ON person.id_person = pocty_kontaktu.id_person
-
-            zjistit jmeno, prijmeni a jejich pocet kontaktu
-        </p>
-        <p>
-            SELECT first_name, last_name, COUNT(id_contact) FROM person
-            LEFT JOIN contact
-            USING(id_person)
-            GROUP BY id_person, first_name, last_name
-            ORDER BY last_name
-        </p>
-        <p>
-            SELECT id_person, COUNT(*) AS pocet_schuzek
-            FROM person_meeting
-            GROUP BY id_person
-
-            persons kolik meli schuzek
-        </p>
-        <p>
-            SELECT person.*, pocet FROM person
-            LEFT JOIN (
-
-            SELECT id_person,
-            COUNT(*) AS pocet
-            FROM contact
-            GROUP BY id_person ) AS pocty_kontaktu
-            USING(id_person)
-
-            LEFT JOIN (
-            SELECT id_person, COUNT(*) AS pocet_schuzek
-            FROM person_meeting
-            GROUP BY id_person ) AS pocty_schuzek
-            ON person.id_person = pocty_schuzek.id_person
-
-            ORDER BY last_name
-        </p>
-    -->
     <div class="container">
-
-        <h1>{include title}</h1>
 
         <form action="{link persons}" method="get">
             <div class="row">
@@ -69,20 +20,23 @@
 
         </form>
 
+        <h1>{include title}</h1>
+
         <table class="table table-striped">
             <tr>
-                <th>Jmeno</th>
-                <th>Prijmeni</th>
-                <th>Prezdivka</th>
+                <th>Jméno</th>
+                <th>Příjmení</th>
+                <th>Přezdívka</th>
                 <th>Adresa</th>
-                <th>Pocet schuzek</th>
-                <th>Pocet kontaktu</th>
+                <th>Počet schůzek</th>
+                <th>Počet kontaktu</th>
                 <th>Smazat</th>
                 <th>Editovat</th>
             </tr>
             {foreach $people as $p}
                 <tr>
-                    <td>{$p['first_name']}</td>
+                    <td> <a href="{link infAboutPerson}?id={$p['id_person']}" class="text-info"
+                    <span>{$p['first_name']} </span> </a> </td>
                     <td>{$p['last_name']}</td>
                     <td>{$p['nickname']}</td>
                     <td>
@@ -100,9 +54,8 @@
                     </td>
                     <td>
                         <form method="post"
-                              onclick="return confirm('Opravdu smazat?')"
+                              onsubmit="return confirm('Opravdu smazat?')"
                               action="{link deletePerson}?id={$p['id_person']}">
-
                             <button class="btn btn-danger">
                                 <span class="fa fa-trash"></span>
                             </button>
