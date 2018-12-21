@@ -252,14 +252,10 @@ $app->get('/info-person', function (Request $request, Response $response, $args)
     $id = $request->getQueryParam('id');
     try {
 
-        $stmt = $this->db->prepare("SELECT person.*, person_meeting.*, location.*, meeting.*
+        $stmt = $this->db->prepare("SELECT person.*, location.*
                                     FROM person
-                                    LEFT JOIN person_meeting 
-                                      ON person_meeting.id_person = person.id_person
                                     LEFT JOIN location 
                                       ON location.id_location = person.id_location
-                                    LEFT JOIN meeting 
-                                      ON meeting.id_meeting = person_meeting.id_meeting
                                     WHERE person.id_person = :id");
         $stmt->bindValue(':id', $id);
         $stmt->execute();
@@ -275,9 +271,90 @@ $app->get('/info-person', function (Request $request, Response $response, $args)
         'nn' => $person['nickname'],
         'h' => $person['height'],
         'g' => $person['gender'],
-        'bd' => $person['birth_day']
+        'bd' => $person['birth_day'],
+        'c' => $person['country'],
+        'ct' => $person['city'],
+        'sna' => $person['street_name'],
+        'snu' => $person['street_number'],
+        'zip' => $person['zip'],
+        'idp' => $person['id_person'],
+        'idl' => $person['id_location']
 ];
-    $tplVars['people'] = $stmt->fetchAll();
+
+    try {
+
+        $stmt = $this->db->prepare("SELECT person.*, meeting.*, person_meeting.*
+                                    FROM person
+                                    LEFT JOIN person_meeting
+                                      ON person_meeting.id_person = person.id_person
+                                    LEFT JOIN meeting 
+                                      ON meeting.id_meeting = person_meeting.id_meeting
+                                    WHERE person.id_person = :id");
+        $stmt->bindValue(':id', $id);
+        $stmt->execute();
+    } catch (Exception $e) {
+        $this->logger->error($e->getMessage());
+        die($e->getMessage());
+    }
+
+    $tplVars['meeting'] = $stmt->fetchAll();
+
+    try {
+
+        $stmt = $this->db->prepare("SELECT person.*, contact.*, contact_type.*
+                                    FROM person
+                                    LEFT JOIN contact
+                                      ON contact.id_person = person.id_person
+                                    LEFT JOIN contact_type 
+                                      ON contact_type.id_contact_type = contact.id_contact_type
+                                    WHERE person.id_person = :id");
+        $stmt->bindValue(':id', $id);
+        $stmt->execute();
+    } catch (Exception $e) {
+        $this->logger->error($e->getMessage());
+        die($e->getMessage());
+    }
+
+
+    $tplVars['contact'] = $stmt->fetchAll();
+
+    try {
+
+        $stmt = $this->db->prepare("SELECT person.*, contact.*, contact_type.*
+                                    FROM person
+                                    LEFT JOIN contact
+                                      ON contact.id_person = person.id_person
+                                    LEFT JOIN contact_type 
+                                      ON contact_type.id_contact_type = contact.id_contact_type
+                                    WHERE person.id_person = :id");
+        $stmt->bindValue(':id', $id);
+        $stmt->execute();
+    } catch (Exception $e) {
+        $this->logger->error($e->getMessage());
+        die($e->getMessage());
+    }
+
+
+    $tplVars['contact'] = $stmt->fetchAll();
+
+    try {
+
+        $stmt = $this->db->prepare("SELECT person.*, relation.*, relation_type.*
+                                    FROM person
+                                    LEFT JOIN relation
+                                      ON relation.id_person1 = person.id_person OR relation.id_person2 = person.id_person
+                                    LEFT JOIN relation_type
+                                      ON relation_type.id_relation_type = relation.id_relation_type
+                                    WHERE person.id_person = :id");
+        $stmt->bindValue(':id', $id);
+        $stmt->execute();
+    } catch (Exception $e) {
+        $this->logger->error($e->getMessage());
+        die($e->getMessage());
+    }
+
+
+    $tplVars['relation'] = $stmt->fetchAll();
 
     return $this->view->render($response, 'person.latte', $tplVars);
 })->setName('infAboutPerson');
