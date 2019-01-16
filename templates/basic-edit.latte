@@ -1,0 +1,146 @@
+{extends 'layout.latte'}
+{block title}Editace{/block}
+{block body}
+    <div class="container">
+        <h1>{include title}</h1>
+        <h3>Výpis lokací</h3>
+        <div class="table-responsive">
+            <table class="table">
+                <tr>
+                    <thead class="thead-light">
+                    <th>Země</th>
+                    <th>Město</th>
+                    <th>Ulice</th>
+                    <th>Číslo domu</th>
+                    <th>ID</th>
+                    <th>Smazat</th>
+                    </thead>
+                </tr>
+                {foreach $locations as $l}
+                    <tr>
+                        <td> {$l['country']}</td>
+                        <td> {$l['city']}</td>
+                        <td> {$l['street_name']}</td>
+                        <td> {$l['street_number']}</td>
+                        <td> {$l['id_location']}</td>
+                        <td>
+                            <form method="post"
+                                  onsubmit="return confirm('Opravdu smazat?')"
+                                  action="{link deleteLocation}?id={$l['id_location']}">
+                                <button class="btn btn-danger">
+                                    <span class="fa fa-trash"></span>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                {/foreach}
+            </table>
+            <hr>
+            <h3>Výpis typů kontaktů</h3>
+            <table class="table">
+                <tr>
+                    <thead class="thead-light">
+                    <th>Typ</th>
+                    <th>ID</th>
+                    <th>Smazat</th>
+                    </thead>
+                </tr>
+                {foreach $contact_types as $c}
+                    <tr>
+                        <td> {$c['name']}</td>
+                        <td> {$c['id_contact_type']}</td>
+                        <td>
+                            <form method="post"
+                                  onsubmit="return confirm('Opravdu smazat?')"
+                                  action="{link deleteContactType}?id={$c['id_contact_type']}">
+                                <button class="btn btn-danger">
+                                    <span class="fa fa-trash"></span>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                {/foreach}
+            </table>
+        </div>
+        <h4>Vytvořit Typ kontaktu</h4>
+        <form action="{link newContactType}" method="post">
+            <label>Název</label>
+            <input type="text" class="form-control" required
+                   name="n" value="">
+            <button type="submit" class="btn btn-success mt-4">
+                <span class="fa fa-save"></span>
+                Vytvořit
+            </button>
+        </form>
+        <hr>
+        <h3>Výpis typů vztahů</h3>
+        <div class="table-responsive">
+            <table class="table">
+                <tr>
+                    <thead class="thead-light">
+                    <th>Typ</th>
+                    <th>ID</th>
+                    <th>Smazat</th>
+                    </thead>
+                </tr>
+                {foreach $relation_types as $t}
+                    <tr>
+                        <td> {$t['name']}</td>
+                        <td> {$t['id_relation_type']}</td>
+                        <td>
+                            <form method="post"
+                                  onsubmit="return confirm('Opravdu smazat?')"
+                                  action="{link deleteRelationType}?id={$t['id_relation_type']}">
+                                <button class="btn btn-danger">
+                                    <span class="fa fa-trash"></span>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                {/foreach}
+            </table>
+        </div>
+        <h4>Vytvořit Typ vztahu</h4>
+        <form action="{link newRelationType}" method="post">
+            <label>Název</label>
+            <input type="text" class="form-control" required
+                   name="n" value="">
+            <button type="submit" class="btn btn-success mt-4">
+                <span class="fa fa-save"></span>
+                Vytvořit
+            </button>
+        </form>
+        <hr>
+        <h3>Výpis setkání</h3>
+        <div class="table-responsive">
+            <table class="table">
+                <tr>
+                    <thead class="thead-light">
+                    <th>Popis setkání</th>
+                    <th>Start</th>
+                    <th>ID</th>
+                    <th>Smazat</th>
+                    </thead>
+                </tr>
+                {foreach $meetings as $m}
+                    <tr>
+                        <td> {$m['description']}</td>
+                        <td> {$m['start']}</td>
+                        <td> {$m['id_meeting']}</td>
+                        <td>
+                            <form method="post"
+                                  onsubmit="return confirm('Opravdu smazat?')"
+                                  action="{link deleteMeeting}?id={$m['id_meeting']}">
+                                <button class="btn btn-danger">
+                                    <span class="fa fa-trash"></span>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                {/foreach}
+            </table>
+        </div>
+        <hr>
+        <a href="{link persons}" class="btn btn-primary mb-5">Zpět</a>
+    </div>
+{/block}

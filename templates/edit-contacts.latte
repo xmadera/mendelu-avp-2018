@@ -1,0 +1,62 @@
+{extends 'layout.latte'}
+{block title}Upravit kontakty{/block}
+{block body}
+    <div class="container">
+        <h1>{include title}</h1>
+        <div class="table-responsive">
+            <table class="table">
+                <tr>
+                    <thead class="thead-light">
+                    <th>Název kontaktu</th>
+                    <th>Kontakt</th>
+                    <th>ID</th>
+                    <th>Smazat</th>
+                    </thead>
+                </tr>
+                {foreach $contact as $c}
+                    <tr>
+                        <td> {$c['name']}</td>
+                        <td> {$c['contact']}</td>
+                        <td> {$c['id_contact']}</td>
+                        <td>
+                            <form method="post"
+                                  onsubmit="return confirm('Opravdu smazat?')"
+                                  action="{link deleteContact}?id={$c['id_contact']}">
+                                <button class="btn btn-danger">
+                                    <span class="fa fa-trash"></span>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                {/foreach}
+            </table>
+        </div>
+        <h3>Vytvořit kontakt</h3>
+        <form action="{link editContacts}?id={$id}" method="post">
+            <div class="row">
+                <div class="col-6">
+                    <label>Vyber kontakt</label>
+                    <select name="idc" class="form-control">
+                        <option value="">Vyber kontakt</option>
+                        {foreach $contact_type as $cp}
+                            <option value="{$cp['id_contact_type']}">
+                                {$cp['name']}
+                            </option>
+                        {/foreach}
+                    </select>
+                </div>
+                <div class="col-6">
+                    <label>Kontakt</label>
+                    <input type="text" class="form-control" value=""
+                           name="c">
+                </div>
+            </div>
+            <button type="submit" class="btn btn-success mt-4">
+                <span class="fa fa-save"></span>
+                Vytvořit
+            </button>
+        </form>
+        <hr>
+        <a href="{link editPerson}?id={$id}" class="btn btn-primary mb-5">Zpět</a>
+    </div>
+{/block}

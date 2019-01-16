@@ -1,0 +1,107 @@
+{extends 'layout.latte'}
+{block title}Upravit Setkání{/block}
+{block body}
+    <div class="container">
+        <h1>{include title}</h1>
+        <hr>
+        <div class="table-responsive">
+            <table class="table">
+                <tr>
+                    <thead class="thead-light">
+                    <th>Popis setkání</th>
+                    <th>Start</th>
+                    <th>Lokace</th>
+                    <th>ID</th>
+                    <th>Neúčast</th>
+                    </thead>
+                </tr>
+                {foreach $meeting as $m}
+                    <tr>
+                        <td> {$m['description']}</td>
+                        <td> {$m['start']}</td>
+                        <td> {$m['city']}</td>
+                        <td> {$m['id_meeting']}</td>
+                        <td>
+                            <form method="post"
+                                  onsubmit="return confirm('Opravdu dát neúčast?')"
+                                  action="{link deleteFromMeeting}?id={$id}">
+                                <button class="btn btn-danger">
+                                    <span class="fa fa-user-times"></span>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                {/foreach}
+            </table>
+        </div>
+        <h3>Přidat se k setkání</h3>
+        <form action="{link joinMeeting}?id={$id}" method="post">
+            <label>Vyber setkání</label>
+            <select name="idm" class="form-control" required>
+                <option value="">Vyber setkání</option>
+                {foreach $meeting_sel as $m}
+                    <option value="{$m['id_meeting']}">
+                        {$m['description']}
+                        {$m['start']}
+                    </option>
+                {/foreach}
+            </select>
+            <button type="submit" class="btn btn-success mt-4 mb-5">
+                <span class="fa fa-save"></span>
+                Přidat se
+            </button>
+        </form>
+        <h3>Vytvořit Setkání</h3>
+        <form action="{link editMeetings}?id={$id}" method="post">
+            <div class="row">
+                <div class="col-6">
+                    <label>Město</label>
+                    <input type="text" class="form-control"
+                           name="ci" value="">
+                    <label>Ulice</label>
+                    <input type="text" class="form-control"
+                           name="st" value="">
+                    <label>Číslo domu</label>
+                    <input type="number" class="form-control"
+                           name="sn" value="">
+                    <label>PSČ</label>
+                    <input type="text" class="form-control"
+                           name="zip" value="">
+                    <hr>
+                    <label>Existující adresa</label>
+                    <select name="idl" class="form-control">
+                        <option value="">Nová adresa</option>
+                        {foreach $locations as $l}
+                            {if $l['id_location'] == $form['idl']}
+                                <option value="{$l['id_location']}" selected>
+                                    {else}
+                                <option value="{$l['id_location']}">
+                            {/if}
+                        {$l['city']}
+                        {$l['street_name']}
+                        {$l['street_number']}
+                            </option>
+                        {/foreach}
+                    </select>
+                </div>
+                <div class="col-6">
+                    <label>Popis</label>
+                    <input type="text" class="form-control" value=""
+                           name="d">
+                    <label>Trvání</label>
+                    <input type="time" class="form-control" value=""
+                           name="du">
+                    <label>Start</label>
+                    <input type="date" class="form-control" value="" required
+                           name="s">
+                </div>
+            </div>
+            <button type="submit" class="btn btn-success mt-4">
+                <span class="fa fa-save"></span>
+                Vytvořit
+            </button>
+        </form>
+        <hr>
+        <a href="{link editPerson}?id={$id}" class="btn btn-primary mb-5">Zpět</a>
+    </div>
+{/block}

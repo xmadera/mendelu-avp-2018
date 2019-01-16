@@ -63,7 +63,7 @@ $app->post('/delete-person', function (Request $request, Response $response, $ar
     }
     return $response->withHeader('Location',
         $this->router->pathFor('persons'));
-})->setName('deletePerson'); // {link deletePerson} -> /~login/.../delete-person
+})->setName('deletePerson');
 
 /**
  * zobrazit form
@@ -177,16 +177,6 @@ $app->get('/new-with-address', function (Request $request, Response $response, $
 })->setName('newWithAddress');
 
 $app->post('/new-with-address', function (Request $request, Response $response, $args) {
-    try {
-        $stmt = $this->db->query('SELECT * FROM location
-                                  WHERE city IS NOT NULL AND street_name IS NOT NULL
-                                  ORDER BY city, street_name');
-        $tplVars['locations'] = $stmt->fetchAll();
-    } catch(Exception $ex) {
-        $this->logger->error($ex->getMessage());
-        die($ex->getMessage());
-    }
-
     $data = $request->getParsedBody();
     if (!empty($data['fn']) && !empty($data['ln']) && !empty($data['nn']))
     {
@@ -248,6 +238,27 @@ $app->post('/new-with-address', function (Request $request, Response $response, 
     }
 });
 
+
+$app->post('/delete-location', function (Request $request, Response $response, $args) {
+    $id = $request->getQueryParam('id');
+    try {
+        $stmt = $this->db->prepare("DELETE FROM location
+                                    WHERE id_location = :id");
+        $stmt->bindValue(':id', $id);
+        $stmt->execute();
+    } catch (Exception $e) {
+        if ($e->getCode() == 23503) {
+            $tplVars['error'] = 'Tato lokace je pouzivana.';
+            return $this->view->render($response, 'basic-edit.latte', $tplVars);
+        } else {
+            $this->logger->error($e->getMessage());
+            die($e->getMessage());
+        }
+    }
+    return $response->withHeader('Location',
+        $this->router->pathFor('persons'));
+})->setName('deleteLocation');
+
 $app->get('/info-person', function (Request $request, Response $response, $args) {
     $id = $request->getQueryParam('id');
     try {
@@ -279,16 +290,18 @@ $app->get('/info-person', function (Request $request, Response $response, $args)
         'zip' => $person['zip'],
         'idp' => $person['id_person'],
         'idl' => $person['id_location']
-];
+    ];
 
     try {
 
-        $stmt = $this->db->prepare("SELECT person.*, meeting.*, person_meeting.*
+        $stmt = $this->db->prepare("SELECT person.*, meeting.*, person_meeting.*, location.*
                                     FROM person
                                     LEFT JOIN person_meeting
                                       ON person_meeting.id_person = person.id_person
                                     LEFT JOIN meeting 
                                       ON meeting.id_meeting = person_meeting.id_meeting
+                                      LEFT JOIN location
+                                      ON location.id_location = meeting.id_location
                                     WHERE person.id_person = :id");
         $stmt->bindValue(':id', $id);
         $stmt->execute();
@@ -320,6 +333,31 @@ $app->get('/info-person', function (Request $request, Response $response, $args)
 
     try {
 
+        $stmt = $this->db->prepare("SELECT person.*, relation.*, relation_type.*
+                                    FROM person
+                                    LEFT JOIN relation
+                                      ON relation.id_person1 = person.id_person OR relation.id_person2 = person.id_person
+                                    LEFT JOIN relation_type
+                                      ON relation_type.id_relation_type = relation.id_relation_type
+                                    WHERE (relation.id_person1 = :id OR relation.id_person2 = :id) AND person.id_person <> :id");
+        $stmt->bindValue(':id', $id);
+        $stmt->execute();
+    } catch (Exception $e) {
+        $this->logger->error($e->getMessage());
+        die($e->getMessage());
+    }
+
+
+    $tplVars['relation'] = $stmt->fetchAll();
+
+    return $this->view->render($response, 'person.latte', $tplVars);
+})->setName('infAboutPerson');
+
+$app->get('/show-contacts', function (Request $request, Response $response, $args) {
+    $id = $request->getQueryParam('id');
+
+    try {
+
         $stmt = $this->db->prepare("SELECT person.*, contact.*, contact_type.*
                                     FROM person
                                     LEFT JOIN contact
@@ -334,8 +372,75 @@ $app->get('/info-person', function (Request $request, Response $response, $args)
         die($e->getMessage());
     }
 
-
+    $tplVars['id'] = $id;
     $tplVars['contact'] = $stmt->fetchAll();
+
+
+    try {
+        $stmt = $this->db->query('SELECT * FROM contact_type
+                                  ORDER BY name');
+        $tplVars['contact_type'] = $stmt->fetchAll();
+    } catch(Exception $ex) {
+        $this->logger->error($ex->getMessage());
+        die($ex->getMessage());
+    }
+
+    return $this->view->render($response, 'edit-contacts.latte', $tplVars);
+})->setName('showContacts');
+
+$app->post('/edit-contacts', function (Request $request, Response $response, $args) {
+    $id = $request->getQueryParam('id');
+    $data = $request->getParsedBody();
+    if (!empty($data['idc']) && !empty($data['c']))
+    {
+        try {
+            $this->db->beginTransaction();
+
+            $stmt = $this->db->prepare('INSERT INTO contact
+                  (id_contact_type, contact, id_person)
+                  VALUES
+                  (:idc, :c, :id)');
+            $stmt->bindValue(':idc', $data['idc']);
+            $stmt->bindValue(':c', $data['c']);
+            $stmt->bindValue(':id', $id);
+            $stmt->execute();
+
+            $this->db->commit();
+
+        } catch (Exception $e) {
+            $this->db->rollback();
+            if ($e->getCode() == 23505) {
+                $tplVars['error'] = 'Tento kontakt uz existuje.';
+                return $this->view->render($response, 'edit-contacts.latte', $tplVars);
+            } else {
+                $this->logger->error($e->getMessage());
+                die($e->getMessage());
+            }
+        }
+        return $response->withHeader('Location', $this->router->pathFor('persons'));
+    } else {
+        $tplVars['error'] = 'Vyplnte povinne udaje.';
+        return $this->view->render($response, 'edit-contacts.latte', $tplVars);
+    }
+})->setName('editContacts');
+
+$app->post('/delete-contact', function (Request $request, Response $response, $args) {
+    $id = $request->getQueryParam('id');
+    try {
+        $stmt = $this->db->prepare("DELETE FROM contact
+                                    WHERE id_contact = :id");
+        $stmt->bindValue(':id', $id);
+        $stmt->execute();
+    } catch (Exception $e) {
+        $this->logger->error($e->getMessage());
+        die($e->getMessage());
+    }
+    return $response->withHeader('Location',
+        $this->router->pathFor('persons'));
+})->setName('deleteContact');
+
+$app->get('/show-relations', function (Request $request, Response $response, $args) {
+    $id = $request->getQueryParam('id');
 
     try {
 
@@ -343,8 +448,113 @@ $app->get('/info-person', function (Request $request, Response $response, $args)
                                     FROM person
                                     LEFT JOIN relation
                                       ON relation.id_person1 = person.id_person OR relation.id_person2 = person.id_person
-                                    LEFT JOIN relation_type
+                                    LEFT JOIN relation_type 
                                       ON relation_type.id_relation_type = relation.id_relation_type
+                                    WHERE (relation.id_person1 = :id OR relation.id_person2 = :id) AND person.id_person <> :id");
+        $stmt->bindValue(':id', $id);
+        $stmt->execute();
+    } catch (Exception $e) {
+        $this->logger->error($e->getMessage());
+        die($e->getMessage());
+    }
+
+    $tplVars['id'] = $id;
+    $tplVars['relation'] = $stmt->fetchAll();
+
+    try {
+        $stmt = $this->db->query('SELECT * FROM person
+                                  ORDER BY first_name');
+        $tplVars['persons'] = $stmt->fetchAll();
+    } catch(Exception $ex) {
+        $this->logger->error($ex->getMessage());
+        die($ex->getMessage());
+    }
+
+    try {
+        $stmt = $this->db->query('SELECT * FROM relation_type
+                                  ORDER BY name');
+        $tplVars['relation_type'] = $stmt->fetchAll();
+    } catch(Exception $ex) {
+        $this->logger->error($ex->getMessage());
+        die($ex->getMessage());
+    }
+
+
+    return $this->view->render($response, 'edit-relations.latte', $tplVars);
+})->setName('showRelations');
+
+
+$app->post('/edit-relations', function (Request $request, Response $response, $args) {
+    $id = $request->getQueryParam('id');
+    $data = $request->getParsedBody();
+    if (!empty($data['idr']) && !empty($data['idp']))
+    {
+        try {
+            $this->db->beginTransaction();
+
+            $stmt = $this->db->prepare('INSERT INTO relation
+                  (id_relation_type, description, id_person1, id_person2)
+                  VALUES
+                  (:idr, :d, :id, :idp)');
+            $stmt->bindValue(':idr', $data['idr']);
+            $stmt->bindValue(':d', $data['d']);
+            $stmt->bindValue(':id', $id);
+            $stmt->bindValue(':idp',$data['idp']);
+            $stmt->execute();
+
+            $this->db->commit();
+
+        } catch (Exception $e) {
+            $this->db->rollback();
+            if ($e->getCode() == 23505) {
+                $tplVars['error'] = 'Tento vztah uz existuje.';
+                return $this->view->render($response, 'edit-relations.latte', $tplVars);
+            } else {
+                $this->logger->error($e->getMessage());
+                die($e->getMessage());
+            }
+        }
+        return $response->withHeader('Location', $this->router->pathFor('persons'));
+    } else {
+        $tplVars['error'] = 'Vyplnte povinne udaje.';
+        return $this->view->render($response, 'edit-relations.latte', $tplVars);
+    }
+})->setName('editRelations');
+
+
+
+$app->post('/delete-relation', function (Request $request, Response $response, $args) {
+    $id = $request->getQueryParam('id');
+    try {
+        $stmt = $this->db->prepare("DELETE FROM relation
+                                    WHERE id_relation = :id");
+        $stmt->bindValue(':id', $id);
+        $stmt->execute();
+    } catch (Exception $e) {
+        $this->logger->error($e->getMessage());
+        die($e->getMessage());
+    }
+    return $response->withHeader('Location',
+        $this->router->pathFor('persons'));
+})->setName('deleteRelation');
+
+
+
+
+
+$app->get('/show-meetings', function (Request $request, Response $response, $args) {
+    $id = $request->getQueryParam('id');
+
+    try {
+
+        $stmt = $this->db->prepare("SELECT person.*, meeting.*, person_meeting.*, location.*
+                                    FROM person
+                                    LEFT JOIN person_meeting
+                                      ON person_meeting.id_person = person.id_person
+                                    LEFT JOIN meeting 
+                                      ON meeting.id_meeting = person_meeting.id_meeting
+                                        LEFT JOIN location
+                                      ON location.id_location = meeting.id_location
                                     WHERE person.id_person = :id");
         $stmt->bindValue(':id', $id);
         $stmt->execute();
@@ -353,17 +563,315 @@ $app->get('/info-person', function (Request $request, Response $response, $args)
         die($e->getMessage());
     }
 
-
-    $tplVars['relation'] = $stmt->fetchAll();
-
-    return $this->view->render($response, 'person.latte', $tplVars);
-})->setName('infAboutPerson');
+    $tplVars['id'] = $id;
+    $tplVars['meeting'] = $stmt->fetchAll();
 
 
+    try {
+        $stmt = $this->db->query('SELECT * FROM location
+                                  WHERE city IS NOT NULL AND street_name IS NOT NULL
+                                  ORDER BY city, street_name');
+        $tplVars['locations'] = $stmt->fetchAll();
+    } catch(Exception $ex) {
+        $this->logger->error($ex->getMessage());
+        die($ex->getMessage());
+    }
+
+    try {
+        $stmt = $this->db->query('SELECT * FROM meeting
+                                  ORDER BY description');
+        $tplVars['meeting_sel'] = $stmt->fetchAll();
+    } catch(Exception $ex) {
+        $this->logger->error($ex->getMessage());
+        die($ex->getMessage());
+    }
+
+
+    return $this->view->render($response, 'edit-meetings.latte', $tplVars);
+})->setName('showMeetings');
+
+
+$app->post('/edit-meetings', function (Request $request, Response $response, $args) {
+    $id = $request->getQueryParam('id');
+    $data = $request->getParsedBody();
+    $idMeeting = null;
+    $idLocation = null;
+    if (!empty($data['s']))
+    {
+        try {
+            $this->db->beginTransaction();
+
+            if(!empty($data['ci'])) {
+                $stmt = $this->db->prepare('INSERT INTO location
+                  (city, street_name, street_number, zip)
+                  VALUES
+                  (:ci, :st, :sn, :zip)');
+                $stmt->bindValue(':ci', $data['ci']);
+                $stmt->bindValue(':st', empty($data['st']) ? null : $data['st']);
+                $stmt->bindValue(':sn', empty($data['sn']) ? null : $data['sn']);
+                $stmt->bindValue(':zip', empty($data['zip']) ? null : $data['zip']);
+                $stmt->execute();
+                $idLocation = $this->db->lastInsertId('location_id_location_seq');
+            } else if(!empty($data['idl'])) {
+                $idLocation = $data['idl'];
+            }
+
+            $stmt = $this->db->prepare('INSERT INTO meeting
+                  (start, description, duration, id_location)
+                  VALUES
+                  (:s, :d, :du, :idl)');
+            $stmt->bindValue(':s', $data['s']);
+            $stmt->bindValue(':d', $data['d']);
+            $stmt->bindValue(':du',  empty($data['du']) ? null : $data['du']);
+            $stmt->bindValue(':idl', $idLocation);
+            $stmt->execute();
+            $idMeeting = $this->db->lastInsertId('meeting_id_meeting_seq');
+
+            $stmt = $this->db->prepare('INSERT INTO person_meeting
+                  (id_person, id_meeting)
+                  VALUES
+                  (:id, :idm)');
+            $stmt->bindValue(':id', $id);
+            $stmt->bindValue(':idm', $idMeeting);
+            $stmt->execute();
+
+            $this->db->commit();
+
+        } catch (Exception $e) {
+            $this->db->rollback();
+            if ($e->getCode() == 23505) {
+                $tplVars['error'] = 'Toto setkání uz existuje.';
+                return $this->view->render($response, 'edit-meetings.latte', $tplVars);
+            } else {
+                $this->logger->error($e->getMessage());
+                die($e->getMessage());
+            }
+        }
+        return $response->withHeader('Location', $this->router->pathFor('persons'));
+    } else {
+        $tplVars['error'] = 'Vyplnte povinne udaje.';
+        return $this->view->render($response, 'edit-meetings.latte', $tplVars);
+    }
+})->setName('editMeetings');
 
 
 
+$app->post('/join-meeting', function (Request $request, Response $response, $args) {
+    $id = $request->getQueryParam('id');
+    $data = $request->getParsedBody();
+    if (!empty($data['idm']))
+    {
+        try {
+            $this->db->beginTransaction();
 
+            $stmt = $this->db->prepare('INSERT INTO person_meeting
+                  (id_person, id_meeting)
+                  VALUES
+                  (:id, :idm)');
+            $stmt->bindValue(':id', $id);
+            $stmt->bindValue(':idm',$data['idm']);
+            $stmt->execute();
+
+            $this->db->commit();
+
+        } catch (Exception $e) {
+            $this->db->rollback();
+        }
+        return $response->withHeader('Location', $this->router->pathFor('persons'));
+    } else {
+        $tplVars['error'] = 'Vyplnte povinne udaje.';
+        return $this->view->render($response, 'edit-meetings.latte', $tplVars);
+    }
+})->setName('joinMeeting');
+
+
+
+$app->post('/delete-from-meeting', function (Request $request, Response $response, $args) {
+    $id = $request->getQueryParam('id');
+    try {
+        $stmt = $this->db->prepare("DELETE FROM person_meeting
+                                    WHERE id_person = :id");
+        $stmt->bindValue(':id', $id);
+        $stmt->execute();
+    } catch (Exception $e) {
+        $this->logger->error($e->getMessage());
+        die($e->getMessage());
+    }
+    return $response->withHeader('Location',
+        $this->router->pathFor('persons'));
+})->setName('deleteFromMeeting');
+
+
+$app->get('/show-basic-edit', function (Request $request, Response $response, $args) {
+
+    try {
+        $stmt = $this->db->query('SELECT * FROM location
+                                  ORDER BY country');
+        $tplVars['locations'] = $stmt->fetchAll();
+    } catch(Exception $ex) {
+        $this->logger->error($ex->getMessage());
+        die($ex->getMessage());
+    }
+
+    try {
+        $stmt = $this->db->query('SELECT * FROM contact_type
+                                  ORDER BY name');
+        $tplVars['contact_types'] = $stmt->fetchAll();
+    } catch(Exception $ex) {
+        $this->logger->error($ex->getMessage());
+        die($ex->getMessage());
+    }
+
+    try {
+        $stmt = $this->db->query('SELECT * FROM relation_type
+                                  ORDER BY name');
+        $tplVars['relation_types'] = $stmt->fetchAll();
+    } catch(Exception $ex) {
+        $this->logger->error($ex->getMessage());
+        die($ex->getMessage());
+    }
+
+    try {
+        $stmt = $this->db->query('SELECT * FROM meeting
+                                  ORDER BY start');
+        $tplVars['meetings'] = $stmt->fetchAll();
+    } catch(Exception $ex) {
+        $this->logger->error($ex->getMessage());
+        die($ex->getMessage());
+    }
+
+
+    return $this->view->render($response, 'basic-edit.latte', $tplVars);
+})->setName('showBasicEdit');
+
+$app->post('/new-contact-type', function (Request $request, Response $response, $args) {
+    $data = $request->getParsedBody();
+    if (!empty($data['n']))
+    {
+        try {
+            $this->db->beginTransaction();
+
+            $stmt = $this->db->prepare('INSERT INTO contact_type
+                  (name, validation_regexp)
+                  VALUES
+                  (:n, :n)');
+            $stmt->bindValue(':n', $data['n']);
+            $stmt->bindValue(':n',$data['n']);
+            $stmt->execute();
+
+            $this->db->commit();
+
+        } catch (Exception $e) {
+            $this->db->rollback();
+            if ($e->getCode() == 23505) {
+                $tplVars['error'] = 'Tento typ už existuje.';
+                return $this->view->render($response, 'basic-edit.latte', $tplVars);
+            } else {
+                $this->logger->error($e->getMessage());
+                die($e->getMessage());
+            }
+        }
+        return $response->withHeader('Location', $this->router->pathFor('persons'));
+    } else {
+        $tplVars['error'] = 'Vyplnte povinne udaje.';
+        return $this->view->render($response, 'basic-edit.latte', $tplVars);
+    }
+})->setName('newContactType');
+
+$app->post('/delete-contact-type', function (Request $request, Response $response, $args) {
+    $id = $request->getQueryParam('id');
+    try {
+        $stmt = $this->db->prepare("DELETE FROM contact_type
+                                    WHERE id_contact_type = :id");
+        $stmt->bindValue(':id', $id);
+        $stmt->execute();
+    } catch (Exception $e) {
+        if ($e->getCode() == 23503) {
+            $tplVars['error'] = 'Tento typ je pouzivany.';
+            return $this->view->render($response, 'basic-edit.latte', $tplVars);
+        } else {
+            $this->logger->error($e->getMessage());
+            die($e->getMessage());
+        }
+    }
+    return $response->withHeader('Location',
+        $this->router->pathFor('persons'));
+})->setName('deleteContactType');
+
+$app->post('/delete-relation-type', function (Request $request, Response $response, $args) {
+    $id = $request->getQueryParam('id');
+    try {
+        $stmt = $this->db->prepare("DELETE FROM relation_type
+                                    WHERE id_relation_type = :id");
+        $stmt->bindValue(':id', $id);
+        $stmt->execute();
+    } catch (Exception $e) {
+        if ($e->getCode() == 23503) {
+            $tplVars['error'] = 'Tento typ je pouzivany.';
+            return $this->view->render($response, 'basic-edit.latte', $tplVars);
+        } else {
+            $this->logger->error($e->getMessage());
+            die($e->getMessage());
+        }
+    }
+    return $response->withHeader('Location',
+        $this->router->pathFor('persons'));
+})->setName('deleteRelationType');
+
+$app->post('/new-relation-type', function (Request $request, Response $response, $args) {
+    $data = $request->getParsedBody();
+    if (!empty($data['n']))
+    {
+        try {
+            $this->db->beginTransaction();
+
+            $stmt = $this->db->prepare('INSERT INTO relation_type
+                  (name)
+                  VALUES
+                  (:n, :n)');
+            $stmt->bindValue(':n', $data['n']);
+            $stmt->execute();
+
+            $this->db->commit();
+
+        } catch (Exception $e) {
+            $this->db->rollback();
+            if ($e->getCode() == 23505) {
+                $tplVars['error'] = 'Tento typ už existuje.';
+                return $this->view->render($response, 'basic-edit.latte', $tplVars);
+            } else {
+                $this->logger->error($e->getMessage());
+                die($e->getMessage());
+            }
+        }
+        return $response->withHeader('Location', $this->router->pathFor('persons'));
+    } else {
+        $tplVars['error'] = 'Vyplnte povinne udaje.';
+        return $this->view->render($response, 'basic-edit.latte', $tplVars);
+    }
+})->setName('newRelationType');
+
+$app->post('/delete-meeting', function (Request $request, Response $response, $args) {
+    $id = $request->getQueryParam('id');
+    try {
+
+        $stmt = $this->db->prepare("DELETE FROM meeting
+                                    WHERE id_meeting = :id");
+        $stmt->bindValue(':id', $id);
+        $stmt->execute();
+
+    } catch (Exception $e) {
+        if ($e->getCode() == 23503) {
+            $tplVars['error'] = 'Na tomto setkani nekdo byl.';
+            return $this->view->render($response, 'basic-edit.latte', $tplVars);
+        } else {
+            $this->logger->error($e->getMessage());
+            die($e->getMessage());
+        }
+    }
+    return $response->withHeader('Location',
+        $this->router->pathFor('persons'));
+})->setName('deleteMeeting');
 
 
 

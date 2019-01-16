@@ -1,7 +1,5 @@
 {extends 'layout.latte'}
-
 {block title}Nová osoba{/block}
-
 {block body}
     <div class="container">
         <h1>{include title}</h1>
@@ -34,7 +32,6 @@
                     <input type="date" name="bd" value="{$form['bd']}" class="form-control">
                     <br>
                 </div>
-
                 <div class="col-6">
                     <label>Město</label>
                     <input type="text" class="form-control"
@@ -52,9 +49,7 @@
                     <input type="text" class="form-control"
                            name="zip" value="{$form['zip']}">
                     <br>
-
                     <hr>
-
                     <label>Existující adresa</label>
                     <select name="idl" class="form-control">
                         <option value="">Nová adresa</option>
@@ -71,12 +66,8 @@
                         {/foreach}
                     </select>
                     <br>
-
                 </div>
-
             </div>
-
-
             <button type="submit" class="btn btn-primary">
                 <span class="fa fa-save"></span>
                 Uložit

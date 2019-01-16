@@ -1,11 +1,10 @@
 {extends 'layout.latte'}
-
 {block title}Upravit osobu{/block}
-
 {block body}
-
     <div class="container">
         <h1>{include title}</h1>
+        <h4>{$form['nn']}</h4>
+        <hr>
         <form action="{link editPerson}?id={$id}" method="post">
             <div class="row">
                 <div class="col-6">
@@ -36,8 +35,6 @@
                     <input type="date" name="bd" value="{$form['bd']}" class="form-control">
                     <br>
                 </div>
-
-
                 <div class="col-6">
                     <label>Město</label>
                     <input type="text" class="form-control"
@@ -55,14 +52,12 @@
                     <input type="text" class="form-control"
                            name="zip" value="{$form['zip']}">
                     <br>
-
-
+                    <a class="btn btn-secondary btn-sm" href="{link showContacts}?id={$id}" role="button">Upravit kontakty</a>
+                    <a class="btn btn-secondary btn-sm" href="{link showRelations}?id={$id}" role="button">Upravit vztahy</a>
+                    <a class="btn btn-secondary btn-sm" href="{link showMeetings}?id={$id}" role="button">Upravit setkání</a>
                 </div>
-
             </div>
-
-
-            <button type="submit" class="btn btn-primary">
+            <button type="submit" class="btn btn-success">
                 <span class="fa fa-save"></span>
                 Upravit
             </button>

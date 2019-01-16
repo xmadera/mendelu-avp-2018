@@ -1,0 +1,78 @@
+{extends 'layout.latte'}
+{block title}Upravit Vztahy{/block}
+{block body}
+    <div class="container">
+        <h1>{include title}</h1>
+        <hr>
+        <div class="table-responsive">
+            <table class="table">
+                <tr>
+                    <thead class="thead-light">
+                    <th>Název vztahu</th>
+                    <th>Popis</th>
+                    <th>S kým</th>
+                    <th>ID</th>
+                    <th>Smazat</th>
+                    </thead>
+                </tr>
+                {foreach $relation as $r}
+                    <tr>
+                        <td> {$r['name']}</td>
+                        <td> {$r['description']}</td>
+                        <td> {$r['nickname']}</td>
+                        <td> {$r['id_relation']}</td>
+                        <td>
+                            <form method="post"
+                                  onsubmit="return confirm('Opravdu smazat?')"
+                                  action="{link deleteRelation}?id={$r['id_relation']}">
+                                <button class="btn btn-danger">
+                                    <span class="fa fa-trash"></span>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                {/foreach}
+            </table>
+        </div>
+        <h3>Vytvořit Vztah</h3>
+        <form action="{link editRelations}?id={$id}" method="post">
+            <div class="row">
+                <div class="col-3">
+                    <label>Vyber vztah</label>
+                    <select name="idr" class="form-control" required>
+                        <option value="">Vyber vztah</option>
+                        {foreach $relation_type as $rt}
+                            <option value="{$rt['id_relation_type']}">
+                                {$rt['name']}
+                            </option>
+                        {/foreach}
+                    </select>
+                </div>
+                <div class="col-3">
+                    <label>Popis</label>
+                    <input type="text" class="form-control" value=""
+                           name="d">
+                </div>
+                <div class="col-3">
+                    <label>Vyber s kým</label>
+                    <select name="idp" class="form-control" required>
+                        <option value="">Vyber s kým</option>
+                        {foreach $persons as $p}
+                            <option value="{$p['id_person']}">
+                                {$p['first_name']}
+                                {$p['last_name']}
+                                {$p['nickname']}
+                            </option>
+                        {/foreach}
+                    </select>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-success mt-4">
+                <span class="fa fa-save"></span>
+                Vytvořit
+            </button>
+        </form>
+        <hr>
+        <a href="{link editPerson}?id={$id}" class="btn btn-primary mb-5">Zpět</a>
+    </div>
+{/block}

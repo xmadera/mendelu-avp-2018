@@ -1,95 +1,112 @@
 {extends 'layout.latte'}
-
 {block title}Výpis kompletních informací o osobě{/block}
-
 {block body}
-<div class="container">
-
-    <h1>{include title}</h1>
-    <form action="{link infAboutPerson}?id={$id}" method="post">
-
-        <table class="table">
-            <br>
-            <tr>
-                <thead class="thead-light">
-                <th>Jméno</th>
-                <th>Příjmení</th>
-                <th>Přezdívka</th>
-                <th>Datum narození</th>
-                <th>Výška</th>
-                <th>ID</th>
-                </thead>
-            </tr>
-
-                <tr>
-                    <td>{$person['fn']}</td>
-                    <td>{$person['ln']}</td>
-                    <td>{$person['nn']}</td>
-                    <td>{$person['bd']}</td>
-                    <td>{$person['h']}</td>
-                    <td>{$person['idp']}</td>
-                </tr>
-
-                <tr>
-                    <thead class="thead-light">
-                    <th>Země</th>
-                    <th>Město</th>
-                    <th>Ulice</th>
-                    <th>Číslo ulice</th>
-                    <th>Zip</th>
-                    <th>ID</th>
-                    </thead>
-                </tr>
-                <tr>
-                    <td> {$person['c']}</td>
-                    <td> {$person['ct']}</td>
-                    <td> {$person['sna']}</td>
-                    <td> {$person['snu']}</td>
-                    <td> {$person['zip']}</td>
-                    <td>{$person['idl']}  </td>
-                </tr>
-                <tr>
-                    <thead class="thead-light">
-                    <th>Popis setkání</th>
-                    <th>Start</th>
-                    <th>ID</th>
-                    </thead>
-                </tr>
-            {foreach $meeting as $m}
-                <tr>
-                    <td> {$m['description']}</td>
-                    <td> {$m['start']}</td>
-                    <td> {$m['id_meeting']}</td>
-                </tr>
-            {/foreach}
-            <tr>
-                <thead class="thead-light">
-                <th>Název kontaktu</th>
-                <th>Kontakt</th>
-                <th>ID</th>
-                </thead>
-            </tr>
-            {foreach $contact as $c}
-                <tr>
-                    <td> {$c['name']}</td>
-                    <td> {$c['contact']}</td>
-                    <td> {$c['id_contact']}</td>
-                </tr>
-            {/foreach}
-            <tr>
-                <thead class="thead-light">
-                <th>Název vztahu</th>
-                <th>Popis Vztahu</th>
-                <th>ID</th>
-                </thead>
-            </tr>
-            {foreach $relation as $r}
-                <tr>
-                    <td> {$r['name']}</td>
-                    <td> {$r['description']}</td>
-                    <td> {$r['id_relation']}</td>
-                </tr>
-            {/foreach}
-        </table>
-</div>
+    <div class="container">
+        <h1>{include title}</h1>
+        <form action="{link infAboutPerson}?id={$id}" method="post">
+            <div class="table-responsive">
+                <table class="table">
+                    <br>
+                    <tr>
+                        <thead class="thead-light">
+                        <th>Jméno</th>
+                        <th>Příjmení</th>
+                        <th>Přezdívka</th>
+                        <th>Datum narození</th>
+                        <th>Výška</th>
+                        <th>ID</th>
+                        </thead>
+                    </tr>
+                    <tr>
+                        <td>{$person['fn']}</td>
+                        <td>{$person['ln']}</td>
+                        <td>{$person['nn']}</td>
+                        <td>{$person['bd']}</td>
+                        <td>{$person['h']}</td>
+                    </tr>
+                    <tr>
+                        <thead class="thead-light">
+                        <th>Země</th>
+                        <th>Město</th>
+                        <th>Ulice</th>
+                        <th>Číslo ulice</th>
+                        <th>Zip</th>
+                        <th>ID</th>
+                        </thead>
+                    </tr>
+                    <tr>
+                        <td> {$person['c']}</td>
+                        <td> {$person['ct']}</td>
+                        <td> {$person['sna']}</td>
+                        <td> {$person['snu']}</td>
+                        <td> {$person['zip']}</td>
+                        <td>{$person['idl']}  </td>
+                    </tr>
+                </table>
+            </div>
+            <h2 class="mt-2">Setkání</h2>
+            <div class="table-responsive">
+                <table class="table">
+                    <tr>
+                        <thead class="thead-light">
+                        <th>Popis setkání</th>
+                        <th>Start</th>
+                        <th>Lokace</th>
+                        <th>ID</th>
+                        </thead>
+                    </tr>
+                    {foreach $meeting as $m}
+                        <tr>
+                            <td> {$m['description']}</td>
+                            <td> {$m['start']}</td>
+                            <td> {$m['city']}</td>
+                            <td> {$m['id_meeting']}</td>
+                        </tr>
+                    {/foreach}
+                </table>
+            </div>
+            <h2 class="mt-2">Kontakty</h2>
+            <div class="table-responsive">
+                <table class="table">
+                    <tr>
+                        <thead class="thead-light">
+                        <th>Název kontaktu</th>
+                        <th>Kontakt</th>
+                        <th>ID</th>
+                        </thead>
+                    </tr>
+                    {foreach $contact as $c}
+                        <tr>
+                            <td> {$c['name']}</td>
+                            <td> {$c['contact']}</td>
+                            <td> {$c['id_contact']}</td>
+                        </tr>
+                    {/foreach}
+                </table>
+            </div>
+            <h2 class="mt-2">Vztahy</h2>
+            <div class="table-responsive">
+                <table class="table">
+                    <tr>
+                    <tr>
+                        <thead class="thead-light">
+                        <th>Název vztahu</th>
+                        <th>Popis Vztahu</th>
+                        <th>S kým</th>
+                        <th>ID</th>
+                        </thead>
+                    </tr>
+                    {foreach $relation as $r}
+                        <tr>
+                            <td> {$r['name']}</td>
+                            <td> {$r['description']}</td>
+                            <td> {$r['nickname']}</td>
+                            <td> {$r['id_relation']}</td>
+                        </tr>
+                    {/foreach}
+                </table>
+            </div>
+            <hr>
+            <a href="{link persons}" class="btn btn-primary mb-5">Zpět</a>
+    </div>
 {/block}

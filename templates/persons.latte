@@ -1,10 +1,7 @@
 {extends 'layout.latte'}
-
 {block title}Výpis osob{/block}
-
 {block body}
     <div class="container">
-
         <form action="{link persons}" method="get">
             <div class="row">
                 <div class="col-12 col-md-6">
@@ -17,11 +14,8 @@
                     </button>
                 </div>
             </div>
-
         </form>
-
         <h1>{include title}</h1>
-
         <table class="table table-striped">
             <tr>
                 <th>Jméno</th>
@@ -36,7 +30,8 @@
             {foreach $people as $p}
                 <tr>
                     <td> <a href="{link infAboutPerson}?id={$p['id_person']}" class="text-info"
-                    <span>{$p['first_name']} </span> </a> </td>
+                        <span>{$p['first_name']} </span> </a>
+                    </td>
                     <td>{$p['last_name']}</td>
                     <td>{$p['nickname']}</td>
                     <td>
@@ -71,5 +66,4 @@
             {/foreach}
         </table>
     </div>
-
 {/block}
