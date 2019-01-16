@@ -138,16 +138,12 @@ $app->post('/edit-person', function (Request $request, Response $response, $args
             $stmt->bindValue(':zip', empty($data['zip']) ? null : $data['zip']);
             $stmt->execute();
 
+
+
         } catch (Exception $e) {
-            if ($e->getCode() == 23505) {
-                $tplVars['error'] = 'Tato osoba uz existuje.';
-                $tplVars['form'] = $data;
-                return $this->view->render($response, 'edit-person.latte', $tplVars);
-            } else {
                 $this->logger->error($e->getMessage());
                 die($e->getMessage());
             }
-        }
         return $response->withHeader('Location', $this->router->pathFor('persons'));
     } else {
         $tplVars['error'] = 'Vyplnte povinne udaje.';
