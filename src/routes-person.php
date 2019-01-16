@@ -3,10 +3,16 @@
 use \Psr\Http\Message\ServerRequestInterface as Request;
 use \Psr\Http\Message\ResponseInterface as Response;
 
-$app->get('/', function (Request $request, Response $response, $args) {
+/**
+ * VYPIS PERSONS
+ */
+
+$app->get('//persons[/{page:[0-9]+}]', function (Request $request, Response $response, $args) {
     $q = $request->getQueryParam('q');
+    $pageLimit = 10;
     try {
         if (empty($q)) {
+            $page = !empty($args['page']) ? $args['page'] : 0;
             $stmt = $this->db->prepare('SELECT person.*, location.*, pocet_k, pocet_s
                 FROM person
                 LEFT JOIN location USING (id_location)
@@ -19,8 +25,18 @@ $app->get('/', function (Request $request, Response $response, $args) {
                   SELECT id_person, COUNT(*) AS pocet_s
                   FROM person_meeting
                   GROUP BY id_person
-                ) AS pocty_schuzek USING (id_person)
-                ORDER BY last_name');
+                ) AS pocty_schuzek USING (id_person)   
+                ORDER BY last_name
+                LIMIT :pl OFFSET :of');
+            $stmt->bindValue(':pl', $pageLimit);
+            $stmt->bindValue(':of', $page * $pageLimit);
+            $stmt->execute();
+            $stmtCnt = $this->db->query('SELECT COUNT(*) AS cnt FROM person');
+            $pageInfo = $stmtCnt->fetch();
+            $tplVars['pCount'] = ceil($pageInfo['cnt'] / $pageLimit);
+            $tplVars['pLimit'] = $pageLimit;
+            $tplVars['pCurr'] = $page;
+            $tplVars['persons'] = $stmt->fetchAll();
         } else {
             $stmt = $this->db->prepare('SELECT person.*, location.*, pocet_k, pocet_s
                 FROM person
@@ -50,6 +66,10 @@ $app->get('/', function (Request $request, Response $response, $args) {
     return $this->view->render($response, 'persons.latte', $tplVars);
 })->setName('persons');
 
+/**
+ * SMAZANI PERSON
+ */
+
 $app->post('/delete-person', function (Request $request, Response $response, $args) {
     $id = $request->getQueryParam('id');
     try {
@@ -66,7 +86,7 @@ $app->post('/delete-person', function (Request $request, Response $response, $ar
 })->setName('deletePerson');
 
 /**
- * zobrazit form
+ * EDITACE PERSON
  */
 $app->get('/edit-person', function (Request $request, Response $response, $args) {
     $id = $request->getQueryParam('id');
@@ -102,13 +122,24 @@ $app->get('/edit-person', function (Request $request, Response $response, $args)
     return $this->view->render($response, 'edit-person.latte', $tplVars);
 })->setName('editPerson');
 
-/**
- * zpracovat data, aktualizovat osobu
- */
 $app->post('/edit-person', function (Request $request, Response $response, $args) {
     $id = $request->getQueryParam('id');
     $data = $request->getParsedBody();
+    $idLocation = null;
     if (!empty($data['fn']) && !empty($data['ln']) && !empty($data['nn'])) {
+
+
+            $stmt = $this->db->prepare('UPDATE location AS l
+                  SET city = :ci, street_name = :st, street_number = :sn, zip = :zip
+                  FROM person AS p
+                  WHERE p.id_person = :id AND p.id_location = l.id_location');
+            $stmt->bindValue(':id', $id);
+            $stmt->bindValue(':ci', $data['ci']);
+            $stmt->bindValue(':st', empty($data['st']) ? null : $data['st']);
+            $stmt->bindValue(':sn', empty($data['sn']) ? null : $data['sn']);
+            $stmt->bindValue(':zip', empty($data['zip']) ? null : $data['zip']);
+            $stmt->execute();
+
         try {
             $stmt = $this->db->prepare('UPDATE person SET
                 first_name = :fn, last_name = :ln, nickname = :nn,
@@ -127,19 +158,6 @@ $app->post('/edit-person', function (Request $request, Response $response, $args
             $stmt->execute();
 
 
-            $stmt = $this->db->prepare('UPDATE location AS l
-                  SET city = :ci, street_name = :st, street_number = :sn, zip = :zip
-                  FROM person AS p
-                  WHERE p.id_person = :id AND p.id_location = l.id_location');
-            $stmt->bindValue(':id', $id);
-            $stmt->bindValue(':ci', $data['ci']);
-            $stmt->bindValue(':st', empty($data['st']) ? null : $data['st']);
-            $stmt->bindValue(':sn', empty($data['sn']) ? null : $data['sn']);
-            $stmt->bindValue(':zip', empty($data['zip']) ? null : $data['zip']);
-            $stmt->execute();
-
-
-
         } catch (Exception $e) {
                 $this->logger->error($e->getMessage());
                 die($e->getMessage());
@@ -151,6 +169,10 @@ $app->post('/edit-person', function (Request $request, Response $response, $args
         return $this->view->render($response, 'edit-person.latte', $tplVars);
     }
 });
+
+/**
+ * NOVY PERSON
+ */
 
 $app->get('/new-with-address', function (Request $request, Response $response, $args) {
     $tplVars['form'] = [
@@ -234,6 +256,9 @@ $app->post('/new-with-address', function (Request $request, Response $response, 
     }
 });
 
+/**
+ * SMAZANI LOCATION
+ */
 
 $app->post('/delete-location', function (Request $request, Response $response, $args) {
     $id = $request->getQueryParam('id');
@@ -254,6 +279,11 @@ $app->post('/delete-location', function (Request $request, Response $response, $
     return $response->withHeader('Location',
         $this->router->pathFor('persons'));
 })->setName('deleteLocation');
+
+
+/**
+ * INFO O PERSON
+ */
 
 $app->get('/info-person', function (Request $request, Response $response, $args) {
     $id = $request->getQueryParam('id');
@@ -349,6 +379,10 @@ $app->get('/info-person', function (Request $request, Response $response, $args)
     return $this->view->render($response, 'person.latte', $tplVars);
 })->setName('infAboutPerson');
 
+/**
+ * VYPSANI CONTACTS
+ */
+
 $app->get('/show-contacts', function (Request $request, Response $response, $args) {
     $id = $request->getQueryParam('id');
 
@@ -383,6 +417,11 @@ $app->get('/show-contacts', function (Request $request, Response $response, $arg
 
     return $this->view->render($response, 'edit-contacts.latte', $tplVars);
 })->setName('showContacts');
+
+
+/**
+ * EDIT CONTACTS
+ */
 
 $app->post('/edit-contacts', function (Request $request, Response $response, $args) {
     $id = $request->getQueryParam('id');
@@ -419,6 +458,11 @@ $app->post('/edit-contacts', function (Request $request, Response $response, $ar
         return $this->view->render($response, 'edit-contacts.latte', $tplVars);
     }
 })->setName('editContacts');
+
+
+/**
+ * SMAZANI CONTACT
+ */
 
 $app->post('/delete-contact', function (Request $request, Response $response, $args) {
     $id = $request->getQueryParam('id');
@@ -480,6 +524,10 @@ $app->get('/show-relations', function (Request $request, Response $response, $ar
 })->setName('showRelations');
 
 
+/**
+ * EDIT RELATIONS
+ */
+
 $app->post('/edit-relations', function (Request $request, Response $response, $args) {
     $id = $request->getQueryParam('id');
     $data = $request->getParsedBody();
@@ -517,7 +565,9 @@ $app->post('/edit-relations', function (Request $request, Response $response, $a
     }
 })->setName('editRelations');
 
-
+/**
+ * SMAZANI RELATION
+ */
 
 $app->post('/delete-relation', function (Request $request, Response $response, $args) {
     $id = $request->getQueryParam('id');
@@ -535,7 +585,9 @@ $app->post('/delete-relation', function (Request $request, Response $response, $
 })->setName('deleteRelation');
 
 
-
+/**
+ * VYPSANI MEETINGS
+ */
 
 
 $app->get('/show-meetings', function (Request $request, Response $response, $args) {
@@ -586,6 +638,11 @@ $app->get('/show-meetings', function (Request $request, Response $response, $arg
     return $this->view->render($response, 'edit-meetings.latte', $tplVars);
 })->setName('showMeetings');
 
+
+
+/**
+ * EDIT MEETINGS
+ */
 
 $app->post('/edit-meetings', function (Request $request, Response $response, $args) {
     $id = $request->getQueryParam('id');
@@ -651,6 +708,9 @@ $app->post('/edit-meetings', function (Request $request, Response $response, $ar
 })->setName('editMeetings');
 
 
+/**
+ * PERSON PRIPOJENI K MEETING
+ */
 
 $app->post('/join-meeting', function (Request $request, Response $response, $args) {
     $id = $request->getQueryParam('id');
@@ -681,6 +741,9 @@ $app->post('/join-meeting', function (Request $request, Response $response, $arg
 })->setName('joinMeeting');
 
 
+/**
+ * SMAZANI PERSON Z PERSON_MEETING
+ */
 
 $app->post('/delete-from-meeting', function (Request $request, Response $response, $args) {
     $id = $request->getQueryParam('id');
@@ -697,6 +760,10 @@ $app->post('/delete-from-meeting', function (Request $request, Response $respons
         $this->router->pathFor('persons'));
 })->setName('deleteFromMeeting');
 
+
+/**
+ * ZAKLADNI EDIT, TYPY
+ */
 
 $app->get('/show-basic-edit', function (Request $request, Response $response, $args) {
 
@@ -740,6 +807,11 @@ $app->get('/show-basic-edit', function (Request $request, Response $response, $a
     return $this->view->render($response, 'basic-edit.latte', $tplVars);
 })->setName('showBasicEdit');
 
+
+/**
+ * NOVY CONTACT_TYPE
+ */
+
 $app->post('/new-contact-type', function (Request $request, Response $response, $args) {
     $data = $request->getParsedBody();
     if (!empty($data['n']))
@@ -774,6 +846,10 @@ $app->post('/new-contact-type', function (Request $request, Response $response, 
     }
 })->setName('newContactType');
 
+/**
+ * SMAZANI CONTACT_TYPE
+ */
+
 $app->post('/delete-contact-type', function (Request $request, Response $response, $args) {
     $id = $request->getQueryParam('id');
     try {
@@ -794,6 +870,10 @@ $app->post('/delete-contact-type', function (Request $request, Response $respons
         $this->router->pathFor('persons'));
 })->setName('deleteContactType');
 
+/**
+ * SMAZANI RELATION_TYPE
+ */
+
 $app->post('/delete-relation-type', function (Request $request, Response $response, $args) {
     $id = $request->getQueryParam('id');
     try {
@@ -813,6 +893,11 @@ $app->post('/delete-relation-type', function (Request $request, Response $respon
     return $response->withHeader('Location',
         $this->router->pathFor('persons'));
 })->setName('deleteRelationType');
+
+
+/**
+ * NOVY RELATION_TYPE
+ */
 
 $app->post('/new-relation-type', function (Request $request, Response $response, $args) {
     $data = $request->getParsedBody();
@@ -846,6 +931,10 @@ $app->post('/new-relation-type', function (Request $request, Response $response,
         return $this->view->render($response, 'basic-edit.latte', $tplVars);
     }
 })->setName('newRelationType');
+
+/**
+ * SMAZANI MEETING
+ */
 
 $app->post('/delete-meeting', function (Request $request, Response $response, $args) {
     $id = $request->getQueryParam('id');

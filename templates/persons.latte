@@ -23,7 +23,7 @@
                 <th>Přezdívka</th>
                 <th>Adresa</th>
                 <th>Počet schůzek</th>
-                <th>Počet kontaktu</th>
+                <th>Počet kontaktů</th>
                 <th>Smazat</th>
                 <th>Editovat</th>
             </tr>
@@ -65,5 +65,30 @@
                 </tr>
             {/foreach}
         </table>
+
+        <table>
+            <tr>
+                {if $pCurr > 0}
+                    <td>
+                        <a href="{link persons ['page' => $pCurr - 1]}">Předchozí</a>
+                    </td>
+                {/if}
+                {for $i = 0; $i < $pCount; $i++}
+                    <td>
+                        {if $i == $pCurr}
+                            <span>{$i + 1}</span>
+                        {else}
+                            <a href="{link persons ['page' => $i]}">{$i + 1}</a>
+                        {/if}
+                    </td>
+                {/for}
+                {if $pCurr < $pCount - 1}
+                    <td>
+                        <a href="{link persons ['page' => $pCurr + 1]}">Další</a>
+                    </td>
+                {/if}
+            </tr>
+        </table>
+
     </div>
 {/block}
